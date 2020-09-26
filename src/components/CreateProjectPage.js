@@ -48,7 +48,7 @@ export default function () {
             </Form.Group>
             <Form.Group controlId="formName">
                 <Form.Label>Organization Password</Form.Label>
-                <Form.Control value={''} placeholder="Create org password" onChange={(e)=>setOrganizationPassword(e.target.value)} required={"true"}/>
+                <Form.Control placeholder="Create org password" onChange={(e)=>setOrganizationPassword(e.target.value)} required={"true"}/>
             </Form.Group>
             <Form.Group controlId="formBasicPassword">
                 <Form.Label>Customer password</Form.Label>

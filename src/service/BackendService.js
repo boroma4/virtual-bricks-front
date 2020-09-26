@@ -1,3 +1,5 @@
+import axios from 'axios';
+
 export class BackendService{
 
     async createProject(projectDTO){
@@ -20,8 +22,17 @@ export class BackendService{
 
     async getProject(pin){
         try {
-            const res = await fetch('https://localhost:5001/api/project/' + pin);
-            return res.json();
+            console.log("Im here");
+            return await axios.get('https://localhost:5001/api/project/' + pin);
+        }
+        catch (e) {
+            return '';
+        }
+    }
+
+    async getModels(projectId){
+        try {
+            return await axios.get('https://localhost:5001/api/project/models/' + projectId);
         }
         catch (e) {
             return '';

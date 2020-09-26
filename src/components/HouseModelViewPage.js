@@ -3,7 +3,6 @@ import * as THREE from "three";
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import houseObj from '../hous.obj'
-import obj2 from'../building-6585285.9-537017.4-6585285.9-537017.4.dae'
 import {useLocation, useHistory} from 'react-router-dom';
 import Button from "react-bootstrap/Button";
 import SpriteText from 'three-spritetext';

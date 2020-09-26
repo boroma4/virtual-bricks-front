@@ -13,7 +13,7 @@ export default function (props) {
     const onSubmit = (e) =>{
         // validate
         props.setComment(prev=>{
-            return {body:[`t:${title}`,`c:${body}`,`by:${name}`,`at:${location}`].join('\n'), event:prev.event}
+            return {body:[`t: ${title}`,`c: ${body}`,`by: ${name}`,`at: ${location}`].join('\n'), event:prev.event}
         });
         setTitle(undefined);
         setName(undefined);

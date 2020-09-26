@@ -2,9 +2,13 @@ import React, {useEffect} from "react";
 import {Form} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import { useHistory } from "react-router-dom";
+import {BackendService} from "../service/BackendService";
 
 export default function MainPage(){
     const history = useHistory();
+    const backendService = new BackendService();
+
+
 
     const onClick = (e) =>{
         // if authenticated, get Data for all models (e.g name,
@@ -13,6 +17,7 @@ export default function MainPage(){
 
 
     useEffect(()=>{
+        console.log(backendService.getProject(321));
         let canvas = document.querySelector('canvas');
         if(canvas){
             document.body.removeChild(canvas);

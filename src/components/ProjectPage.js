@@ -14,6 +14,7 @@ export default function MainPage(){
     const[models, setModels] = useState([]);
     const[modelCards, setModelCards] = useState(undefined);
     const[modalShow, setModalShow] = useState(undefined);
+    const[isOrg, setIsOrg] = useState(reactLocalStorage.get('isOrg', false) == 'true');
 
     const  deAsyncGetProjects = async (func,arg) => {
         let result = await func(arg);
@@ -59,7 +60,7 @@ export default function MainPage(){
         if(canvas){
             document.body.removeChild(canvas);
         }
-
+        console.log(reactLocalStorage.get('isOrg', false));
         if (!currentProject){
             const serviceCall = new BackendService();
             deAsyncGetProjects(serviceCall.getProject, pin);
@@ -81,13 +82,13 @@ export default function MainPage(){
             <h3>Customer: {(currentProject?.customerName) ? (currentProject.customerName) : ("N/A")} </h3>
             <h3>Organization: {(currentProject?.organizationName) ? (currentProject.organizationName) : ("N/A")} </h3>
             {models ? (makeCards()):(<></>)}
-            <Card style={{ width: '18rem' }}>
-                <Card.Body>
-                    <Card.Title>Add new model</Card.Title>
-                    <Card.Subtitle className="mb-2 text-muted"> </Card.Subtitle>
+            {isOrg ? (<Card style={{ width: '18rem' }}>
+            <Card.Body>
+                        <Card.Title>Add new model</Card.Title>
+                        <Card.Subtitle className="mb-2 text-muted"> </Card.Subtitle>
                     <Card.Link href="#" onClick={()=>setModalShow(true)}>Add</Card.Link>
                 </Card.Body>
-            </Card>
+            </Card>) : (<></>)}
             <AddModelModal
                 show={modalShow}
                 project={currentProject}

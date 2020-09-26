@@ -2,14 +2,32 @@ import React, {useEffect, useState} from "react";
 import {Form} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
 import {useHistory, withRouter} from "react-router-dom";
+import {BackendService} from "../service/BackendService";
+import {reactLocalStorage} from 'reactjs-localstorage';
 
 function MainPage(){
     const history = useHistory();
     const [pin,setPin] = useState("");
+    const [password, setPassword] = useState('');
 
-    const onClick = (e) =>{
-        // if authenticated, get Data for all models (e.g name,
-        history.push("/project/"+pin);
+    const  deAsyncGetProjects = async (func,arg) => {
+        let result = await func(arg);
+        return result.data;
+    };
+
+    const onClick = async (e) =>{
+        const serviceCall = new BackendService();
+        const project = await deAsyncGetProjects(serviceCall.getProject, pin);
+        const{customerPassword, organizationPassword} = project;
+        if(password === customerPassword){
+            reactLocalStorage.set('isOrg', false);
+            history.push("/project/"+pin);
+        }else if (password === organizationPassword){
+            reactLocalStorage.set('isOrg', true);
+            history.push("/project/"+pin);
+        }else{
+            alert('Wrong PIN code or password');
+        }
     };
 
 
@@ -29,7 +47,7 @@ function MainPage(){
 
             <Form.Group controlId="formBasicPassword">
                 <Form.Label>Password</Form.Label>
-                <Form.Control type="password" placeholder="Password" />
+                <Form.Control type="password" placeholder="Password"  onChange={(e)=>{setPassword(e.target.value)}}/>
             </Form.Group>
             <Button variant="primary" onClick={onClick}>
                 Go

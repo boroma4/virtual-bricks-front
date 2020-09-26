@@ -1,4 +1,4 @@
-class BackendService{
+export class BackendService{
 
     async createProject(projectDTO){
 

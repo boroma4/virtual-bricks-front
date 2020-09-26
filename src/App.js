@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import PageNotFound from "./components/PageNotFound";
 import Header from "./cmp/Header";
+import CreateProjectPage from "./components/CreateProjectPage";
 
 export default function App() {
   return (
@@ -20,6 +21,9 @@ export default function App() {
               <Route path="/" exact={true}>
                 <MainPage/>
               </Route>
+                <Route path="/create" exact={true}>
+                    <CreateProjectPage/>
+                </Route>
                 <Route path="/project" exact={true}>
                     <ProjectPage/>
                 </Route>

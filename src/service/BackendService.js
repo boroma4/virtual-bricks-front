@@ -57,6 +57,30 @@ export class BackendService{
         }
     }
 
+    async addChildComment(dto){
+        try {
+            console.log(dto);
+            const req = await axios.request({
+                url: 'https://localhost:5001/api/comment/savechildcomment',
+                method : "POST",
+                data: {
+                    "modelId": dto.modelId,
+                    "parentId": dto.parentId,
+                    "commentText": dto.commentText,
+                    "commentHeader": dto.commentHeader,
+                    "commentAuthor": dto.commentAuthor,
+                    "locationName": dto.locationName,
+                    "commentCoordinates": dto.commentCoordinates
+                }
+            });
+
+            return req;
+
+        }
+        catch (e) {
+            console.log(e);
+        }
+    }
 
     async addCommentToModel(dto){
         try {

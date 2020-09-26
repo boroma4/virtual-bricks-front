@@ -11,6 +11,7 @@ const CommentPage = () => {
     const[comments,setComments] = useState(undefined);
     const[thread,setThread] = useState(undefined);
     const [threadShown,setThreadShown] = useState(false);
+    const[currentParent,setCurrentParent] = useState(undefined);
 
     const loadComments = async () => {
         let backendCall = new BackendService();
@@ -18,17 +19,21 @@ const CommentPage = () => {
         setComments(response.data);
     };
 
-    const loadThread = async (commentId) => {
+    const loadThread = async (comment) => {
         let backendCall = new BackendService();
-        let response = await  backendCall.getThread(commentId);
+        let response = await  backendCall.getThread(comment.commentId);
         setThread(response.data);
         setThreadShown(true);
+        setCurrentParent(comment);
     };
 
     const unloadThread = async () => {
         setThreadShown(false);
         setThread(undefined);
+        setCurrentParent(undefined);
     };
+
+    useEffect(()=>{},[thread]);
 
     useEffect(() => {
         if (!comments){
@@ -36,11 +41,6 @@ const CommentPage = () => {
         }
     },[comments,modelId]);
 
-    // useEffect(() => {
-    //     if (thread){
-    //         setThreadShown(true);
-    //     }
-    // },[thread]);
 
     const displayMessageRows = (comments) => {
         return (
@@ -49,10 +49,10 @@ const CommentPage = () => {
                     <tbody>
                     {comments?.map((comment,idx)=>{
                         return (
-                            <h3>
+
                                 <tr key={idx}>
                                     <td style={marginStyle}>
-                                        {comment.commentHeader}
+                                        <h3>{comment.commentHeader}</h3>
                                     </td>
                                     <td style={marginStyle}>
                                         {comment.commentAuthor}
@@ -64,21 +64,20 @@ const CommentPage = () => {
                                         {comment.commentText}
                                     </td>
 
-                                    {threadShown? (<td style={marginStyle}>
+                                    {threadShown && currentParent?.commentId === comment.commentId? (<td style={marginStyle}>
                                             <button onClick={()=>{unloadThread()}}> Close thread</button>
                                         </td>)
                                         :
                                         (<td style={marginStyle}>
-                                            <button onClick={()=>{loadThread(comment.commentId)}}> View thread</button>
+                                            <button onClick={()=>{loadThread(comment)}}> View thread</button>
                                         </td>)
                                     }
                                 </tr>
-                            </h3>
                         )
                     })}
                     </tbody>
                 </table>
-                {threadShown? (<Thread isShown={threadShown} thread={thread} />): (<></>)}
+                {threadShown && thread ? (<Thread isShown={threadShown} thread={thread} setThread={setThread} parent={currentParent}/>): (<></>)}
 
             </div>)
     };
@@ -89,29 +88,77 @@ const CommentPage = () => {
         </div>);
 };
 
-const Thread = ({isShown,thread}) => {
+const Thread = ({isShown,thread, setThread, parent}) => {
+
+    const[input, setInput] = useState("");
+    const[author, setAuthor] = useState("");
+
+    if (!thread){
+        return <></>;
+    }
+
+    const onAuthorChange = (e) => {
+        let newAutor = e.target.value;
+        setAuthor(newAutor);
+    };
+
+    const onInputChange = (e) => {
+          let newInput = e.target.value;
+          setInput(newInput);
+    };
+
+    const addComment = async () => {
+        const serviceCall = new BackendService();
+        let newComment = await serviceCall.addChildComment({
+            "commentText": input ,
+            "modelId": parent.modelId ,
+            "parentId": parent.commentId,
+            "commentHeader": parent.commentHeader,
+            "commentAuthor": author,
+            "locationName": parent.locationName,
+            "commentCoordinates": parent.commentCoordinates
+        });
+
+        setThread((prev)=>{
+            let lst = [...prev];
+            lst.push(newComment.data);
+            return lst;
+        });
+
+    };
+
       if (isShown){
           return (
-              <table>
+              <div>
                   ***
-              <tbody>
-              {thread?.map((comment,idx)=>{
-                  return (
-                      <h4>
-                          <tr key={idx}>
-                              <td style={marginStyle}>
-                                  {comment.commentAuthor}
-                              </td>
-                              <td style={marginStyle}>
-                                  {comment.commentText}
-                              </td>
-                          </tr>
-                      </h4>
-                  )
-              })}
-              </tbody>
+                  <table>
+                      <tbody>
+                      {thread?.map((comment,idx)=>{
+                          return (
+
+                                  <tr key={idx}>
+                                      <td style={marginStyle}>
+                                          {comment.commentText}
+                                      </td>
+                                      <td style={marginStyle}>
+                                          <h4 >{comment.commentAuthor}</h4>
+                                      </td>
+                                  </tr>
+                          )
+                      })}
+                      </tbody>
+
+                  </table>
                   ***
-          </table>);
+                  <div>
+
+                      <input onChange={(e) => onInputChange(e)} value={input} placeholder="Your reply..."/>
+                      <input onChange={(e) => onAuthorChange(e)} value={author} placeholder="Author"/>
+                      <button onClick={()=>{addComment()}}>Add comment</button>
+                  </div>
+
+              </div>
+              );
       }else{
           return (<></>);
       }

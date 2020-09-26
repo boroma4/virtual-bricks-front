@@ -22,16 +22,21 @@ export default function MainPage(){
         setModels(result.data)
     };
 
+    const onSeeCommentsClick = (modelId) => {
+        console.log("FOR REAL");
+        history.push("/model/comments/"+modelId);
+    };
+
     const makeCards = () => {
         return (<div>
             {models.map((card,idx)=>{
                 return (
-                    <Card style={{ width: '18rem' }}>
+                    <Card style={{ width: '18rem' }} key={idx}>
                         <Card.Body>
                             <Card.Title>{card.modelName}</Card.Title>
                             <Card.Subtitle className="mb-2 text-muted">Model code: {card.modelCode}</Card.Subtitle>
                             <Card.Link href="#">See 3D</Card.Link>
-                            <Card.Link href="#">See Comments</Card.Link>
+                            <Card.Link onClick={()=> onSeeCommentsClick(card.modelId)}>See Comments</Card.Link>
                         </Card.Body>
                     </Card>)
             })}

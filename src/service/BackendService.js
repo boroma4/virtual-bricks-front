@@ -39,6 +39,25 @@ export class BackendService{
         }
     }
 
+    async getComments(modelId){
+        try {
+            return await axios.get('https://localhost:5001/api/comment/' + modelId+ '/comments');
+        }
+        catch (e) {
+            return '';
+        }
+    }
+
+    async getThread(commentId){
+        try {
+            return await axios.get('https://localhost:5001/api/comment/' + commentId+ '/comments/thread');
+        }
+        catch (e) {
+            return '';
+        }
+    }
+
+
     async addCommentToModel(dto){
         try {
             const req = await fetch('https://localhost:5001/api/comment/savecomment', {

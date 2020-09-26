@@ -1,35 +1,30 @@
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import {Form} from "react-bootstrap";
 import Button from "react-bootstrap/Button";
-import { useHistory } from "react-router-dom";
-import {BackendService} from "../service/BackendService";
+import {useHistory, withRouter} from "react-router-dom";
 
-export default function MainPage(){
+function MainPage(){
     const history = useHistory();
-    const backendService = new BackendService();
-
-
+    const [pin,setPin] = useState("");
 
     const onClick = (e) =>{
         // if authenticated, get Data for all models (e.g name,
-        history.push("/project");
+        history.push("/project/"+pin);
     };
 
 
     useEffect(()=>{
-        console.log(backendService.getProject(321));
         let canvas = document.querySelector('canvas');
         if(canvas){
             document.body.removeChild(canvas);
         }
     }, []);
 
-
     return(
         <Form>
             <Form.Group controlId="formBasicEmail">
-                <Form.Label>Project Id</Form.Label>
-                <Form.Control placeholder="Enter project id" />
+                <Form.Label>Project PIN</Form.Label>
+                <Form.Control placeholder="Enter project id" onChange={(e)=>{setPin(e.target.value)}}/>
             </Form.Group>
 
             <Form.Group controlId="formBasicPassword">
@@ -42,3 +37,5 @@ export default function MainPage(){
         </Form>
     )
 }
+
+export default withRouter(MainPage);

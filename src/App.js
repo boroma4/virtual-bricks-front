@@ -24,7 +24,7 @@ export default function App() {
                 <Route path="/create" exact={true}>
                     <CreateProjectPage/>
                 </Route>
-                <Route path="/project" exact={true}>
+                <Route path="/project/:pin" exact={true}>
                     <ProjectPage/>
                 </Route>
                 <Route path="/model" exact={true}>

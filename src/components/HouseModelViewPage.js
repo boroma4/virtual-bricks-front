@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import * as THREE from "three";
 import { OBJLoader2 } from 'three/examples/jsm/loaders/OBJLoader2.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
+
 import houseObj from '../Cyprys_House.obj'
 import houseMtl from '../Cyprys_House.mtl'
 import obj2 from'../medieval house.dae'

@@ -55,4 +55,81 @@ export class BackendService{
             return false;
         }
     }
+
+    async uploadModel(file, modelName, projectId){
+        let formData = new FormData();
+        formData.append('data', file);
+        formData.append('projectId', projectId);
+        formData.append('modelName', modelName);
+
+        try {
+            const model = await axios.post(
+                'https://localhost:5001/api/file/upload',
+                formData,
+                {
+                    headers: {
+                        "Content-type": "multipart/form-data",
+                    },
+                }
+            );
+            console.log(model);
+            return await model.data;
+        }
+        catch(e){
+            return null;
+        }
+    }
+
+    async uploadExtraFile(modelId, file){
+        let formData = new FormData();
+        formData.append('data', file);
+        formData.append('modelId', modelId);
+
+        try {
+            const model = await axios.post(
+                'https://localhost:5001/api/file/uploadextra',
+                formData,
+                {
+                    headers: {
+                        "Content-type": "multipart/form-data",
+                    },
+                }
+            );
+            console.log(model);
+            return await model.data;
+        }
+        catch(e){
+            return null;
+        }
+    }
+
+    async getParentComments(modelId){
+        try{
+            const comments = await axios.get(`https://localhost:5001/api/comment/${modelId}/comments`);
+            return comments
+        }
+        catch (e) {
+            return null;
+        }
+    }
+
+    async getFile(modelCode){
+        try {
+            const file = await axios.get('https://localhost:5001/api/file/download?modelCode='+modelCode);
+            return file;
+        }
+        catch (e) {
+            return null;
+        }
+    }
+
+    async getFile2(modelCode){
+        try {
+            const file = await axios.get('https://localhost:5001/api/file/download2?modelCode='+modelCode);
+            return file;
+        }
+        catch (e) {
+            return null;
+        }
+    }
 }

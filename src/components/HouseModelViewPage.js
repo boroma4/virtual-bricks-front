@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import * as THREE from "three";
 import { OBJLoader2 } from 'three/examples/jsm/loaders/OBJLoader2.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-
+import {reactLocalStorage} from 'reactjs-localstorage';
 import houseObj from '../Cyprys_House.obj'
 import houseMtl from '../Cyprys_House.mtl'
 import obj2 from'../medieval house.dae'
@@ -15,121 +15,136 @@ import {BackendService} from "../service/BackendService";
 import {MTLLoader} from 'three/examples/jsm/loaders/MTLLoader.js';
 import {MtlObjBridge} from 'three/examples/jsm/loaders/obj2/bridge/MtlObjBridge.js';
 
-function HouseModelViewPage({modelId}) {
+function HouseModelViewPage() {
     const [modalShow, setModalShow] = useState(false);
     const[lastComment, setLastComment] = useState({});
 
-    let animationId, renderer;
+    let animationId, modelId;
     let location = useLocation();
     const history = useHistory();
     const backendService = new BackendService();
+    let renderer;
 
-    if(!modelId) modelId = 69
 
     useEffect(()=>{
         let w = window.innerWidth / 1.5, h = window.innerHeight / 1.5;
-
-        const mouse = new THREE.Vector2();
-        const raycaster = new THREE.Raycaster();
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(60, w/h, 1, 3000);
-        camera.position.set(0, 0, 20);
-        renderer = new THREE.WebGLRenderer({antialias: true});
-        renderer.gammaOutput = true;
-
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0xadd8e6);
-        document.body.appendChild(renderer.domElement);
-        camera.position.z = 5;
-
-        window.addEventListener('resize', () => {
-            let width = window.innerWidth;
-            let height = window.innerHeight;
-            renderer.setSize(width, height);
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix()
-        });
-
-        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-        hemiLight.position.set( 0, 500, 0 );
-        scene.add( hemiLight );
-
-        const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-        dirLight.position.set( -1, 0.75, 1 );
-        dirLight.position.multiplyScalar( 50);
-        dirLight.name = "dirlight";
-        scene.add( dirLight );
-
-        dirLight.castShadow = true;
-
-        const controls = new OrbitControls( camera, renderer.domElement );
-
-        camera.position.set( 0, 20, 100 );
-        controls.update();
-
-        let house;
-        const loader = new OBJLoader2();
-        // const loader2 = new ColladaLoader();
-        // loader2.options.convertUpAxis = true;
-        //
-        // loader2.load(
-        //     // resource URL
-        //     obj2,
-        //     // called when resource is loaded
-        //     function ( object ) {
-        //         const house = object.scene;
-        //         const bextMax = 400;
-        //         const boundingBox = new THREE.Box3().setFromObject(house);
-        //         const size = boundingBox.getSize();// Returns Vector3
-        //         const max = Math.max(size.x, size.y, size.z);
-        //         const scale = bextMax / max;
-        //         house.scale.set(10, 10, 10);
-        //         camera.lookAt(house.position)
-        //         scene.add( house);
-        //     }
-        // );
-
-        const mtlLoader = new MTLLoader();
-        mtlLoader.load(houseMtl, (mtlParseResult) => {
-            const materials =  MtlObjBridge.addMaterialsFromMtlLoader(mtlParseResult);
-            loader.addMaterials(materials);
-            loader.load(
-                // resource URL
-                houseObj,
-                // called when resource is loaded
-                function ( object ) {
-                    house = object;
-                    const helper = new THREE.BoundingBoxHelper(object, 0xff0000);
-                    helper.update();
-                    scene.add(helper);
-                    const bextMax = 400;
-                    const boundingBox = new THREE.Box3().setFromObject(house);
-                    const size = boundingBox.getSize();// Returns Vector3
-                    const max = Math.max(size.x, size.y, size.z);
-                    const scale = bextMax / max;
-                    object.scale.set(scale, scale, scale);
-                    scene.add( object );
-
-                },
-                // called when loading is in progresses
-                function ( xhr ) {
-                    console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-                },
-                // called when loading has errors
-                function ( error ) {
-                    console.log( 'An error happened', error );
-                }
-            );
-        });
-
-        renderer.domElement.addEventListener("dblclick", onDblClick);
-
-        function onDblClick(event){
-            setLastComment({event});
-            setModalShow(true);
+        const modelCode = reactLocalStorage.get('model');
+        const modelCode2 = reactLocalStorage.get('model2');
+        let model, mtl, comments;
+        if(!modelCode){
+            model = houseObj;
+            mtl = houseMtl;
+            run()
+        }else{
+            backendService.getFile(modelCode)
+                .then(res => model = res.data)
+                .then(res=>{
+                    if(modelCode2) {
+                        backendService.getFile2(modelCode2)
+                            .then(res => mtl = res.data)
+                            .then(res => reactLocalStorage.remove('model2'))
+                            .then(res => loadComments())
+                            .then(res => run())
+                            .catch(err => console.log(err));
+                    }else{
+                        loadComments();
+                        run()
+                    }
+                })
+                .then(res=> reactLocalStorage.remove('model'))
+                .catch(err=> console.log(err));
         }
 
-        async function addComment(cmt){
+        function loadComments() {
+            modelId = reactLocalStorage.get('modelId');
+            backendService.getParentComments(modelId)
+                .then(res => comments = res)
+                .then(res => reactLocalStorage.remove('modelId'))
+                .catch(err => console.log(err));
+        }
+
+        function run() {
+            const mouse = new THREE.Vector2();
+            const raycaster = new THREE.Raycaster();
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(60, w/h, 1, 3000);
+            camera.position.set(0, 0, 20);
+            renderer = new THREE.WebGLRenderer({antialias: true});
+            renderer.gammaOutput = true;
+
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0xadd8e6);
+            document.body.appendChild(renderer.domElement);
+            camera.position.z = 5;
+
+            window.addEventListener('resize', () => {
+                let width = window.innerWidth;
+                let height = window.innerHeight;
+                renderer.setSize(width, height);
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix()
+            });
+
+            const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+            hemiLight.position.set( 0, 500, 0 );
+            scene.add( hemiLight );
+
+            const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+            dirLight.position.set( -1, 0.75, 1 );
+            dirLight.position.multiplyScalar( 50);
+            dirLight.name = "dirlight";
+            scene.add( dirLight );
+
+            dirLight.castShadow = true;
+
+            const controls = new OrbitControls( camera, renderer.domElement );
+
+            camera.position.set( 0, 20, 100 );
+            controls.update();
+
+            // const loader2 = new ColladaLoader();
+            // loader2.options.convertUpAxis = true;
+            //
+            // loader2.load(
+            //     // resource URL
+            //     obj2,
+            //     // called when resource is loaded
+            //     function ( object ) {
+            //         const house = object.scene;
+            //         const bextMax = 400;
+            //         const boundingBox = new THREE.Box3().setFromObject(house);
+            //         const size = boundingBox.getSize();// Returns Vector3
+            //         const max = Math.max(size.x, size.y, size.z);
+            //         const scale = bextMax / max;
+            //         house.scale.set(10, 10, 10);
+            //         camera.lookAt(house.position)
+            //         scene.add( house);
+            //     }
+            // );
+
+            let house;
+            const objLoader2 = new OBJLoader2();
+            const mtlLoader = new MTLLoader();
+            const materials = mtlLoader.parse(mtl);
+            objLoader2.addMaterials(MtlObjBridge.addMaterialsFromMtlLoader(materials));
+            house = objLoader2.parse(model);
+
+            const bextMax = 500;
+            const boundingBox = new THREE.Box3().setFromObject(house);
+            const size = boundingBox.getSize();// Returns Vector3
+            const max = Math.max(size.x, size.y, size.z);
+            const scale = bextMax / max;
+            house.scale.set(scale, scale, scale);
+            scene.add( house );
+
+            renderer.domElement.addEventListener("dblclick", onDblClick);
+
+            function onDblClick(event){
+                setLastComment({event});
+                setModalShow(true);
+            }
+
+            async function addComment(cmt){
                 // send http request with data
                 mouse.x = (cmt.event.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(cmt.event.clientY / window.innerHeight) * 2 + 1;
@@ -143,7 +158,7 @@ function HouseModelViewPage({modelId}) {
 
                 let [commentHeader, commentText , commentAuthor, locationName ] = cmt.body.split('\n');
                 const dto = {modelId, commentText, commentHeader, commentAuthor, locationName, commentCoordinates: `${o.x} ${o.y} ${o.z}` };
-
+                setLastComment({});
                 if(await backendService.addCommentToModel(dto)) {
                     const commentPoint = new THREE.Vector3()
                         .subVectors(pIntersect, raycaster.ray.origin)
@@ -169,28 +184,30 @@ function HouseModelViewPage({modelId}) {
                     myText.color = 'green';
                     scene.add(myText);
                 }
-        }
+            }
 
-        function animate() {
-            animationId = requestAnimationFrame(animate);
-            controls.update();
-            setLastComment(prev=>{
-                if(prev.body){
-                    addComment(prev);
-                    setLastComment({})
-                }
-                return prev;
-            });
-
-            renderer.render(scene, camera)
+            function animate() {
+                animationId = requestAnimationFrame(animate);
+                controls.update();
+                setLastComment(prev=>{
+                    if(prev.body){
+                        addComment(prev);
+                    }
+                    return prev;
+                });
+                renderer.render(scene, camera)
+            }
+            animate()
         }
-        animate()
     },[]);
 
     const closeModelScreen = (e) =>{
+        if(renderer){
+            document.body.removeChild(renderer.domElement);
+        }
         cancelAnimationFrame(animationId);
-        document.body.removeChild(renderer.domElement);
-        history.push('/');
+        history.goBack();
+        history.goBack();
     };
 
 

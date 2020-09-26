@@ -181,6 +181,11 @@ function MyVerticallyCenteredModal(props) {
         props.setComment(prev=>{
             return {body:[`t:${title}`,`c:${body}`,`by:${name}`,`at:${location}`].join('\n'), event:prev.event}
         });
+        setTitle(undefined);
+        setName(undefined);
+        setBody(undefined);
+        setLocation(undefined);
+
         props.onHide();
     };
 
@@ -200,19 +205,19 @@ function MyVerticallyCenteredModal(props) {
                 <Form>
                     <Form.Group controlId="formBasicEmail">
                         <Form.Label>Title</Form.Label>
-                        <Form.Control placeholder="Enter title" onChange={(e)=>setTitle(e.target.value)}/>
+                        <Form.Control placeholder="Enter title" onChange={(e)=>setTitle(e.target.value)} required="true"/>
                     </Form.Group>
                     <Form.Group controlId="formBasicPassword">
                         <Form.Label>Location</Form.Label>
-                        <Form.Control placeholder="Describe the location you clicked at" onChange={(e)=>setLocation(e.target.value)} />
+                        <Form.Control placeholder="Describe the location you clicked at" onChange={(e)=>setLocation(e.target.value)} required="true"/>
                     </Form.Group>
                     <Form.Group controlId="formLocation">
                         <Form.Label>Comment</Form.Label>
-                        <Form.Control placeholder="Describe your thoughts" onChange={(e)=>setBody(e.target.value)}/>
+                        <Form.Control placeholder="Describe your thoughts" onChange={(e)=>setBody(e.target.value)} required="true"/>
                     </Form.Group>
                     <Form.Group controlId="formName">
                         <Form.Label>Name</Form.Label>
-                        <Form.Control placeholder="Enter name" onChange={(e)=>setName(e.target.value)}/>
+                        <Form.Control value={''} placeholder="Enter name" onChange={(e)=>setName(e.target.value)} required={"true"}/>
                     </Form.Group>
                     <Button variant="primary" onClick={onSubmit}>
                         Submit

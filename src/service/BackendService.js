@@ -12,7 +12,7 @@ export class BackendService{
                 },
                 body: JSON.stringify(projectDTO) // body data type must match "Content-Type" header
             });
-            return req.status === 200;
+            return await req.json();
         }
         catch (e) {
             console.log(e);

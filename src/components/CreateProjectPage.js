@@ -21,12 +21,12 @@ export default function () {
     const onSubmit = async (e) =>{
         // validate
         const dto ={estonianId, customerName,
-            organizationName, customerPassword, organizationPassword, projectName, pinCode}
-        console.log(dto);
+            organizationName, customerPassword, organizationPassword, projectName, pinCode};
         const result = await backendService.createProject(dto);
         if(result){
             // set active project in state
-            history.push('/project');
+            console.log(result);
+            history.push('/project/'+result.pinCode);
         }else{
             console.log('request failed');
         }

@@ -11,9 +11,8 @@ export default function (props) {
     const [body, setBody] = useState();
 
     const onSubmit = (e) =>{
-        // validate
         props.setComment(prev=>{
-            return {body:[`t: ${title}`,`c: ${body}`,`by: ${name}`,`at: ${location}`].join('\n'), event:prev.event}
+            return {body:[title,body,name,location].join('\n'), event:prev.event}
         });
         setTitle(undefined);
         setName(undefined);

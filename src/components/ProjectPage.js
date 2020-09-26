@@ -25,6 +25,11 @@ export default function MainPage(){
         setModels(result.data)
     };
 
+    const onSeeCommentsClick = (modelId) => {
+        console.log("FOR REAL");
+        history.push("/model/comments/"+modelId);
+    };
+
     const onSee3D = (model) =>{
         reactLocalStorage.set('model', model.modelCode);
         reactLocalStorage.set('model2', model.modelCode2);
@@ -36,12 +41,12 @@ export default function MainPage(){
         return (<div>
             {models.map((card,idx)=>{
                 return (
-                    <Card style={{ width: '18rem' }}>
+                    <Card style={{ width: '18rem' }} key={idx}>
                         <Card.Body>
                             <Card.Title>{card.modelName}</Card.Title>
                             <Card.Subtitle className="mb-2 text-muted">Model code: {card.modelCode}</Card.Subtitle>
                             <Card.Link href="#" onClick ={()=>onSee3D(card)}>See 3D</Card.Link>
-                            <Card.Link href="#">See Comments</Card.Link>
+                            <Card.Link onClick={()=> onSeeCommentsClick(card.modelId)}>See Comments</Card.Link>
                         </Card.Body>
                     </Card>)
             })}

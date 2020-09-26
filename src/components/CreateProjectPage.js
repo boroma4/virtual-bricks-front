@@ -20,8 +20,10 @@ export default function () {
 
     const onSubmit = async (e) =>{
         // validate
-        const result = await backendService.createProject({estonianId, customerName,
-            organizationName, customerPassword, organizationPassword, projectName, pinCode});
+        const dto ={estonianId, customerName,
+            organizationName, customerPassword, organizationPassword, projectName, pinCode}
+        console.log(dto);
+        const result = await backendService.createProject(dto);
         if(result){
             // set active project in state
             history.push('/project');
@@ -58,7 +60,7 @@ export default function () {
             </Form.Group>
             <Form.Group controlId="formName">
                 <Form.Label>Pin code</Form.Label>
-                <Form.Control value={''} placeholder="Enter pin for your project" onChange={(e)=>setPinCode(e.target.value)} required={"true"}/>
+                <Form.Control placeholder="Enter pin for your project" onChange={(e)=>setPinCode(e.target.value)} required={"true"}/>
             </Form.Group>
             <Button variant="primary" onClick={onSubmit}>
                 Submit

@@ -9,14 +9,16 @@ import Button from "react-bootstrap/Button";
 import SpriteText from 'three-spritetext';
 import {ColladaLoader} from "three/examples/jsm/loaders/ColladaLoader";
 import AddCommentModal from "../cmp/AddCommentModal";
+import {BackendService} from "../service/BackendService";
 
-function HouseModelViewPage() {
+function HouseModelViewPage({modelId}) {
     const [modalShow, setModalShow] = useState(false);
     const[lastComment, setLastComment] = useState({});
 
     let animationId, renderer;
     let location = useLocation();
     const history = useHistory();
+    const backendService = new BackendService();
 
     useEffect(()=>{
         let w = window.innerWidth / 1.5, h = window.innerHeight / 1.5;
@@ -107,6 +109,9 @@ function HouseModelViewPage() {
 
                 let o = intersects[0];
                 let pIntersect = o.point.clone();
+
+                let [commentText, commentTitle, commentHeader, commentAuthor] = cmt.body.split('\n');
+                //const dto = {modelId, commentText: cmt.body, commentHeader: }
 
                 const commentPoint = new THREE.Vector3()
                     .subVectors(pIntersect, raycaster.ray.origin)

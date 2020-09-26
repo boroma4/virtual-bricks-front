@@ -4,7 +4,7 @@ import { OBJLoader2 } from 'three/examples/jsm/loaders/OBJLoader2.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import houseObj from '../Cyprys_House.obj'
 import houseMtl from '../Cyprys_House.mtl'
-import obj2 from'../building-6585285.9-537017.4-6585285.9-537017.4.dae'
+import obj2 from'../medieval house.dae'
 import {useLocation, useHistory} from 'react-router-dom';
 import Button from "react-bootstrap/Button";
 import SpriteText from 'three-spritetext';
@@ -49,11 +49,11 @@ function HouseModelViewPage({modelId}) {
             camera.updateProjectionMatrix()
         });
 
-        var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
         hemiLight.position.set( 0, 500, 0 );
         scene.add( hemiLight );
 
-        var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+        const dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
         dirLight.position.set( -1, 0.75, 1 );
         dirLight.position.multiplyScalar( 50);
         dirLight.name = "dirlight";
@@ -68,17 +68,25 @@ function HouseModelViewPage({modelId}) {
 
         let house;
         const loader = new OBJLoader2();
-        const loader2 = new ColladaLoader();
-
+        // const loader2 = new ColladaLoader();
+        // loader2.options.convertUpAxis = true;
+        //
         // loader2.load(
         //     // resource URL
-        //     'building-6585285.9-537017.4-6585285.9-537017.4.dae',
+        //     obj2,
         //     // called when resource is loaded
         //     function ( object ) {
-        //         scene.add( object.scene );
+        //         const house = object.scene;
+        //         const bextMax = 400;
+        //         const boundingBox = new THREE.Box3().setFromObject(house);
+        //         const size = boundingBox.getSize();// Returns Vector3
+        //         const max = Math.max(size.x, size.y, size.z);
+        //         const scale = bextMax / max;
+        //         house.scale.set(10, 10, 10);
+        //         camera.lookAt(house.position)
+        //         scene.add( house);
         //     }
         // );
-
 
         const mtlLoader = new MTLLoader();
         mtlLoader.load(houseMtl, (mtlParseResult) => {

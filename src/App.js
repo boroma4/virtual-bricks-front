@@ -10,6 +10,7 @@ import {
 import PageNotFound from "./components/PageNotFound";
 import Header from "./cmp/Header";
 import CreateProjectPage from "./components/CreateProjectPage";
+import CommentPage from "./components/Comments";
 
 export default function App() {
   return (
@@ -30,9 +31,13 @@ export default function App() {
                 <Route path="/model" exact={true}>
                     <HouseModelViewPage/>
                 </Route>
+                <Route path="/model/comments/:modelId" exact>
+                    <CommentPage/>
+                </Route>
                 <Route>
                     <PageNotFound/>
                 </Route>
+
             </Switch>
           </div>
         </div>

@@ -13,7 +13,7 @@ export default function (props) {
     const onSubmit = (e) =>{
         // validate
         props.setComment(prev=>{
-            return {body:[`t:${title}`,`c:${body}`,`by:${name}`,`at:${location}`].join('\n'), event:prev.event}
+            return {body:[`t: ${title}`,`c: ${body}`,`by: ${name}`,`at: ${location}`].join('\n'), event:prev.event}
         });
         setTitle(undefined);
         setName(undefined);
@@ -51,7 +51,7 @@ export default function (props) {
                     </Form.Group>
                     <Form.Group controlId="formName">
                         <Form.Label>Name</Form.Label>
-                        <Form.Control value={''} placeholder="Enter name" onChange={(e)=>setName(e.target.value)} required={"true"}/>
+                        <Form.Control placeholder="Enter name" onChange={(e)=>setName(e.target.value)} required={"true"}/>
                     </Form.Group>
                     <Button variant="primary" onClick={onSubmit}>
                         Submit

@@ -8,10 +8,12 @@ import {
     Route
 } from "react-router-dom";
 import PageNotFound from "./components/PageNotFound";
+import Header from "./cmp/Header";
 
 export default function App() {
   return (
       <Router>
+          <Header/>
         <div className="App">
           <div className="container d-flex align-items-center flex-column">
             <Switch>

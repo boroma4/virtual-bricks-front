@@ -6,6 +6,13 @@ export default function MainPage(){
 
     const history = useHistory();
 
+    useEffect(()=>{
+        let canvas = document.querySelector('canvas');
+        if(canvas){
+            document.body.removeChild(canvas);
+        }
+    }, []);
+
     return(
         <div>
             <Card style={{ width: '18rem' }}>

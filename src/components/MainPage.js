@@ -17,7 +17,7 @@ export default function MainPage(){
         if(canvas){
             document.body.removeChild(canvas);
         }
-    });
+    }, []);
 
 
     return(

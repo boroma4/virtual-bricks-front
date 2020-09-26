@@ -1,21 +1,26 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import * as THREE from "three";
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import houseObj from '../hous.obj'
+import obj2 from'../building-6585285.9-537017.4-6585285.9-537017.4.dae'
 import {useLocation, useHistory} from 'react-router-dom';
 import Button from "react-bootstrap/Button";
-
+import SpriteText from 'three-spritetext';
+import Modal from "react-bootstrap/Modal";
+import Form from "react-bootstrap/Form";
+import {ColladaLoader} from "three/examples/jsm/loaders/ColladaLoader";
 
 function HouseModelViewPage() {
+    const [modalShow, setModalShow] = useState(false);
+    const[lastComment, setLastComment] = useState({});
+
     let animationId, renderer;
     let location = useLocation();
     const history = useHistory();
-    const startLocation = location.pathname;
+
     useEffect(()=>{
         let w = window.innerWidth / 1.5, h = window.innerHeight / 1.5;
-        // We need 3 things everytime we use Three.js
-        // Scene + Camera + Renderer
 
         const mouse = new THREE.Vector2();
         const raycaster = new THREE.Raycaster();
@@ -26,12 +31,10 @@ function HouseModelViewPage() {
         renderer.gammaOutput = true;
 
         renderer.setSize(window.innerWidth, window.innerHeight);
-// sets renderer background color
-        renderer.setClearColor("pink");
+        renderer.setClearColor(0xadd8e6);
         document.body.appendChild(renderer.domElement);
         camera.position.z = 5;
 
-// resize canvas on resize window
         window.addEventListener('resize', () => {
             let width = window.innerWidth;
             let height = window.innerHeight;
@@ -40,22 +43,35 @@ function HouseModelViewPage() {
             camera.updateProjectionMatrix()
         });
 
-        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444 );
-        hemiLight.position.set( 0, 300, 0 );
+        var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+        hemiLight.position.set( 0, 500, 0 );
         scene.add( hemiLight );
 
-        const dirLight = new THREE.DirectionalLight( 0xffffff );
-        dirLight.position.set( 75, 300, -75 );
+        var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+        dirLight.position.set( -1, 0.75, 1 );
+        dirLight.position.multiplyScalar( 50);
+        dirLight.name = "dirlight";
         scene.add( dirLight );
+
+        dirLight.castShadow = true;
 
         const controls = new OrbitControls( camera, renderer.domElement );
 
-//controls.update() must be called after any manual changes to the camera's transform
         camera.position.set( 0, 20, 100 );
         controls.update();
 
         let house;
         const loader = new OBJLoader();
+        const loader2 = new ColladaLoader();
+
+        // loader2.load(
+        //     // resource URL
+        //     'building-6585285.9-537017.4-6585285.9-537017.4.dae',
+        //     // called when resource is loaded
+        //     function ( object ) {
+        //         scene.add( object.scene );
+        //     }
+        // );
         loader.load(
             // resource URL
             houseObj,
@@ -73,36 +89,66 @@ function HouseModelViewPage() {
                 console.log( 'An error happened', error );
             }
         );
+
         renderer.domElement.addEventListener("dblclick", onDblClick);
+
         function onDblClick(event){
-            mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-            mouse.y = - ( event.clientY / window.innerHeight  ) * 2 + 1;
-            raycaster.setFromCamera(mouse, camera);
+            setLastComment({event});
+            setModalShow(true);
+        }
 
-            let intersects = raycaster.intersectObject(house, true);
-            if (intersects.length < 1) return;
+        function addComment(cmt){
+                // send http request with data
+                mouse.x = (cmt.event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(cmt.event.clientY / window.innerHeight) * 2 + 1;
+                raycaster.setFromCamera(mouse, camera);
 
-            let o = intersects[0];
-            let pIntersect = o.point.clone();
-            house.worldToLocal(pIntersect);
-            const geometry = new THREE.BoxGeometry( 5, 5, 5 );
-            const material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
-            const cube = new THREE.Mesh( geometry, material );
-            cube.position.copy(o.face.normal).multiplyScalar(0.25).add(pIntersect);
-            scene.add( cube );
+                let intersects = raycaster.intersectObject(house, true);
+                if (intersects.length < 1) return;
+
+                let o = intersects[0];
+                let pIntersect = o.point.clone();
+
+                const commentPoint = new THREE.Vector3()
+                    .subVectors(pIntersect, raycaster.ray.origin)
+                    .multiplyScalar(0.85)
+                    .add(raycaster.ray.origin);
+
+                const hackedPoint = new THREE.Vector3()
+                    .subVectors(pIntersect, raycaster.ray.origin)
+                    .applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI * 0.5)
+                    .normalize()
+                    .add(commentPoint);
+
+                let dir = [hackedPoint, pIntersect];
+
+                const directionGeom = new THREE.BufferGeometry().setFromPoints(dir);
+                const directionMat = new THREE.LineBasicMaterial({color: 0x00000});
+                const direction = new THREE.Line(directionGeom, directionMat);
+                scene.add(direction);
+
+
+                const myText = new SpriteText(cmt.body);
+                myText.position.copy(hackedPoint);
+                myText.color = 'red';
+                scene.add(myText);
         }
 
         function animate() {
-            if(location.pathname !== startLocation || location.action === 'POP'){
-                cancelAnimationFrame(animationId);
-                document.body.removeChild(renderer.domElement);
-            }
             animationId = requestAnimationFrame(animate);
             controls.update();
+            setLastComment(prev=>{
+                if(prev.body){
+                    addComment(prev);
+                    setLastComment({})
+                }
+                return prev;
+            });
+
             renderer.render(scene, camera)
         }
         animate()
-    }, []);
+    },[]);
 
     const closeModelScreen = (e) =>{
         cancelAnimationFrame(animationId);
@@ -110,11 +156,75 @@ function HouseModelViewPage() {
         history.push('/');
     };
 
+
     return (
         <div>
             <Button variant="warning" onClick={closeModelScreen}>Close</Button>
+            <MyVerticallyCenteredModal
+                show={modalShow}
+                onHide={() => setModalShow(false)}
+                setComment={setLastComment}
+            />
         </div>
     );
 }
+
+function MyVerticallyCenteredModal(props) {
+
+    const [title, setTitle] = useState();
+    const [name, setName] = useState();
+    const [location, setLocation] = useState();
+    const [body, setBody] = useState();
+
+    const onSubmit = (e) =>{
+        // validate
+        props.setComment(prev=>{
+            return {body:[`t:${title}`,`c:${body}`,`by:${name}`,`at:${location}`].join('\n'), event:prev.event}
+        });
+        props.onHide();
+    };
+
+    return (
+        <Modal
+            {...props}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+        >
+            <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">
+                    Add a comment
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form>
+                    <Form.Group controlId="formBasicEmail">
+                        <Form.Label>Title</Form.Label>
+                        <Form.Control placeholder="Enter title" onChange={(e)=>setTitle(e.target.value)}/>
+                    </Form.Group>
+                    <Form.Group controlId="formBasicPassword">
+                        <Form.Label>Location</Form.Label>
+                        <Form.Control placeholder="Describe the location you clicked at" onChange={(e)=>setLocation(e.target.value)} />
+                    </Form.Group>
+                    <Form.Group controlId="formLocation">
+                        <Form.Label>Comment</Form.Label>
+                        <Form.Control placeholder="Describe your thoughts" onChange={(e)=>setBody(e.target.value)}/>
+                    </Form.Group>
+                    <Form.Group controlId="formName">
+                        <Form.Label>Name</Form.Label>
+                        <Form.Control placeholder="Enter name" onChange={(e)=>setName(e.target.value)}/>
+                    </Form.Group>
+                    <Button variant="primary" onClick={onSubmit}>
+                        Submit
+                    </Button>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={props.onHide}>Close</Button>
+            </Modal.Footer>
+        </Modal>
+    );
+}
+
 
 export default HouseModelViewPage;

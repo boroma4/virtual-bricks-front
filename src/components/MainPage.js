@@ -39,7 +39,7 @@ function MainPage(){
     }, []);
 
     return(
-        <Form>
+        <Form style={{marginTop:'20%', height:'80vh'}}>
             <Form.Group controlId="formBasicEmail">
                 <Form.Label>Project PIN</Form.Label>
                 <Form.Control placeholder="Enter project id" onChange={(e)=>{setPin(e.target.value)}}/>

@@ -190,7 +190,7 @@ function HouseModelViewPage() {
                     .normalize()
                     .add(commentPoint);
 
-                const dto = {modelId, commentText, commentHeader, commentAuthor, locationName,
+                const dto = {'modelId': parseInt(modelId, 10), commentText, commentHeader, commentAuthor, locationName,
                     commentCoordinates: `${pIntersect.x} ${pIntersect.y} ${pIntersect.z} 
                     ${hackedPoint.x}  ${hackedPoint.y}  ${hackedPoint.z}` };
 

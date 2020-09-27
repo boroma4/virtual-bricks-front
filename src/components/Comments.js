@@ -1,9 +1,10 @@
 import React, {useEffect, useState} from "react";
 import { useParams } from "react-router-dom";
 import {BackendService} from "../service/BackendService";
+import Button from "react-bootstrap/Button";
 
 const marginStyle = {
-    margin:10
+    margin:15
 };
 
 const CommentPage = () => {
@@ -44,7 +45,7 @@ const CommentPage = () => {
 
     const displayMessageRows = (comments) => {
         return (
-            <div>
+            <div className='w-100 h-100'>
                 <table>
                     <tbody>
                     {comments?.map((comment,idx)=>{
@@ -52,24 +53,21 @@ const CommentPage = () => {
 
                                 <tr key={idx}>
                                     <td style={marginStyle}>
-                                        <h3>{comment.commentHeader}</h3>
+                                        <h3 style={{fontStyle:'italic'}}>{comment.commentHeader}</h3>
+                                        <p>{comment.commentText}</p>
                                     </td>
+                                    <td style={{...marginStyle, width:'7%'}}/>
                                     <td style={marginStyle}>
-                                        {comment.commentAuthor}
+                                        <h6>{'Location: ' + comment.locationName} </h6>
+                                        <p>{'By: ' + comment.commentAuthor}</p>
                                     </td>
-                                    <td style={marginStyle}>
-                                        {comment.locationName}
-                                    </td>
-                                    <td style={marginStyle}>
-                                        {comment.commentText}
-                                    </td>
-
+                                    <td style={{...marginStyle, width:'7%'}}/>
                                     {threadShown && currentParent?.commentId === comment.commentId? (<td style={marginStyle}>
-                                            <button onClick={()=>{unloadThread()}}> Close thread</button>
+                                            <Button variant={'info'} onClick={()=>{unloadThread()}}> Close thread</Button>
                                         </td>)
                                         :
                                         (<td style={marginStyle}>
-                                            <button onClick={()=>{loadThread(comment)}}> View thread</button>
+                                            <Button variant={'secondary'} onClick={()=>{loadThread(comment)}}> View thread</Button>
                                         </td>)
                                     }
                                 </tr>
@@ -83,7 +81,7 @@ const CommentPage = () => {
     };
 
     return (
-        <div>
+        <div className='w-100'  style={{height:'100vh'}}>
             {displayMessageRows(comments)}
         </div>);
 };
@@ -130,7 +128,7 @@ const Thread = ({isShown,thread, setThread, parent}) => {
       if (isShown){
           return (
               <div>
-                  ***
+                  *************
                   <table>
                       <tbody>
                       {thread?.map((comment,idx)=>{
@@ -138,10 +136,10 @@ const Thread = ({isShown,thread, setThread, parent}) => {
 
                                   <tr key={idx}>
                                       <td style={marginStyle}>
-                                          {comment.commentText}
+                                          <h4 >{comment.commentAuthor}</h4>
                                       </td>
                                       <td style={marginStyle}>
-                                          <h4 >{comment.commentAuthor}</h4>
+                                          {'  ->  ' + comment.commentText}
                                       </td>
                                   </tr>
                           )
@@ -149,12 +147,11 @@ const Thread = ({isShown,thread, setThread, parent}) => {
                       </tbody>
 
                   </table>
-                  ***
+                  *************
                   <div>
-
-                      <input onChange={(e) => onInputChange(e)} value={input} placeholder="Your reply..."/>
-                      <input onChange={(e) => onAuthorChange(e)} value={author} placeholder="Author"/>
-                      <button onClick={()=>{addComment()}}>Add comment</button>
+                      <input style={{marginLeft:'5px'}} onChange={(e) => onInputChange(e)} value={input} placeholder="Your reply..."/>
+                      <input style={{marginLeft:'5px'}} onChange={(e) => onAuthorChange(e)} value={author} placeholder="Author"/>
+                      <Button style={{marginLeft:'5px'}} onClick={()=>{addComment()}}>Add comment</Button>
                   </div>
 
               </div>

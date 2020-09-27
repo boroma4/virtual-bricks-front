@@ -33,7 +33,7 @@ export default function () {
     };
 
     return (
-        <Form style={{width:'100%'}}>
+        <Form style={{width:'100%', height:'100vh', marginTop:'20px'}}>
             <Form.Group controlId="formBasicEmail">
                 <Form.Label>Estonian ID</Form.Label>
                 <Form.Control placeholder="Enter EHR id" onChange={(e)=>setEstonianId(e.target.value)} required="true"/>

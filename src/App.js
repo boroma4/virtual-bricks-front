@@ -2,6 +2,7 @@ import React from 'react';
 import HouseModelViewPage from "./components/HouseModelViewPage";
 import ProjectPage from "./components/ProjectPage";
 import MainPage from "./components/MainPage";
+import './index.css'
 import {
     BrowserRouter as Router,
     Switch,
@@ -17,7 +18,7 @@ export default function App() {
       <Router>
           <Header/>
         <div className="App">
-          <div className="container d-flex align-items-center flex-column">
+          <div className="container d-flex align-items-center flex-column ">
             <Switch>
               <Route path="/" exact={true}>
                 <MainPage/>
